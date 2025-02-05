@@ -1,0 +1,264 @@
+version: 1
+default_environment: dev
+project_id: c2a694f3-d2ab-4da5-92ca-04575a3f9e90
+environments:
+- name: dev
+- name: staging
+- name: prod
+plugins:
+  extractors:
+  - name: tap-postgres
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/tap-postgres.git
+    config:
+      database: ${TAP_POSTGRES_DATABASE}
+      host: ${TAP_POSTGRES_HOST}
+      port: ${TAP_POSTGRES_PORT}
+      user: ${TAP_POSTGRES_USER}
+      password: ${TAP_POSTGRES_PASSWORD}
+      filter_schemas:
+      - public
+      default_replication_method: FULL_TABLE
+    select:
+    - public-${MELTANO_AIRFLOW_TABLE}.*
+
+  - name: tap-duckdb
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/tap-duckdb.git
+    config:
+      path: 
+        ${MELTANO_PROJECT_ROOT}/output/data/csv/${MELTANO_AIRFLOW_TIMESTAMP}/order_datails.duckdb
+
+  - name: tap-duckdb-postgres
+    inherit_from: tap-duckdb
+    config:
+      path: 
+        ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/northwind.duckdb
+
+  - name: tap-csv
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: order_details_entity
+        path: ./data/order_details.csv
+        keys:
+        - order_id
+        - product_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-employee_territories
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - employee_id
+        - territory_id
+        delimiter: ','
+        
+  - name: tap-csv-postgres-categories
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - category_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-customer_customer_demo
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - customer_id
+        - customer_type_id
+        delimiter: ','
+
+  - name: tap-csv-postgres-customer_demographics
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - customer_type_id
+        delimiter: ','
+
+  - name: tap-csv-postgres-customers
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - customer_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-employees
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - employee_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-orders
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - order_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-products
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - product_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-region
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - region_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-shippers
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - shipper_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-suppliers
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - supplier_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-territories
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - territory_id
+        delimiter: ','
+  
+  - name: tap-csv-postgres-us_states
+    inherit_from: tap-csv
+    pip_url: git+https://github.com/MeltanoLabs/tap-csv.git
+    config:
+      files:
+      - entity: ${MELTANO_AIRFLOW_TABLE}
+        path: ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/public-${MELTANO_AIRFLOW_TABLE}.csv
+        keys:
+        - state_id
+        delimiter: ','
+
+  loaders:
+  - name: target-duckdb
+    variant: jwills
+    pip_url: target-duckdb~=0.6
+    config:
+      filepath: 
+        ${MELTANO_PROJECT_ROOT}/output/data/csv/${MELTANO_AIRFLOW_TIMESTAMP}/order_datails.duckdb
+      load_method: overwrite
+
+  - name: target-postgres
+    variant: meltanolabs
+    pip_url: meltanolabs-target-postgres
+    config:
+      database: ${TARGET_POSTGRES_DATABASE}
+      host: ${TARGET_POSTGRES_HOST}
+      port: ${TARGET_POSTGRES_PORT}
+      user: ${TARGET_POSTGRES_USER}
+      password: ${TARGET_POSTGRES_PASSWORD}
+      default_target_schema: raw
+      load_method: overwrite
+      stream_maps:
+        tap-postgres-categories:
+          category_id: str(category_id)
+        tap-postgres-employee_territories:
+          territory_id: str(territory_id)
+          employee_id: str(employee_id)
+        tap-postgres-employees:
+          employee_id: str(employee_id)
+          reports_to: str(reports_to)
+        tap-postgres-orders:
+          order_id: str(order_id)
+          freight: str(freight)
+          employee_id: str(employee_id)
+          ship_via: str(ship_via)
+        tap-postgres-products:
+          product_id: str(product_id)
+          discontinued: str(discontinued)
+          category_id: str(category_id)
+          reorder_level: str(reorder_level)
+          supplier_id: str(supplier_id)
+          unit_price: str(unit_price)
+          units_in_stock: str(units_in_stock)
+          units_on_order: str(units_on_order)
+        tap-postgres-region:
+          region_id: str(region_id)
+        tap-postgres-shippers:
+          shipper_id: str(shipper_id)
+        tap-postgres-suppliers:
+          supplier_id: str(supplier_id)
+        tap-postgres-territories:
+          territory_id: str(territory_id)
+          region_id: str(region_id)
+        tap-postgres-us_states:
+          state_id: str(state_id)
+
+  - name: target-duckdb-postgres
+    inherit_from: target-duckdb
+    config:
+      filepath: 
+        ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/northwind.duckdb
+      default_target_schema: tap-postgres
+
+  - name: target-csv
+    variant: meltanolabs
+    pip_url: git+https://github.com/MeltanoLabs/target-csv.git
+    config:
+      destination_path: 
+        ${MELTANO_PROJECT_ROOT}/output/data/postgres/${MELTANO_AIRFLOW_TABLE}/${MELTANO_AIRFLOW_TIMESTAMP}/
+      load_method: overwrite
+      overwrite_behavior: replace_file
